@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 	"math"
-
-	"github.com/applied-concurrency-in-go/db"
-	"github.com/applied-concurrency-in-go/models"
-	"github.com/applied-concurrency-in-go/stats"
+	"github.com/iugmali/go-concurrency/db"
+	"github.com/iugmali/go-concurrency/models"
+	"github.com/iugmali/go-concurrency/stats"
 )
 
 // repo holds all the dependencies required for repo operations
@@ -108,7 +107,15 @@ func (r *repo) processOrders() {
 
 // processOrder is an internal method which completes or rejects an order
 func (r *repo) processOrder(order *models.Order) {
+	// ensure the order is completed
+	fetchedOrder, err := r.orders.Find(order.ID)
+	if err != nil || fetchedOrder.Status != models.OrderStatus_Completed {
+		fmt.Println("duplicate reversal on order ", order.ID)
+	}
 	item := order.Item
+	if order.Status == models.OrderStatus_ReversalRequested {
+		item.Amount = -item.Amount
+	}
 	product, err := r.products.Find(item.ProductID)
 	if err != nil {
 		order.Status = models.OrderStatus_Rejected
@@ -147,5 +154,22 @@ func (r repo) GetOrderStats(ctx context.Context) (models.Statistics, error) {
 // RequestReversal fetches an existing order and updates it for reversal
 func (r repo) RequestReversal(orderId string) (*models.Order, error) {
 	//TODO: implement me!
-	panic("request reversal not implemented yet")
+	// try to find the order
+	order, err := r.orders.Find(orderId)
+	if err != nil {
+		return nil, err
+	}
+	if order.Status != models.OrderStatus_Completed {
+		return nil, fmt.Errorf("order status is %s, only completed orders can be requested for reversal", order.Status)
+	}
+	// set reversal requested
+	order.Status = models.OrderStatus_ReversalRequested
+	// place the order in the incoming order channel
+	select {
+	case r.incoming <- order:
+		r.orders.Upsert(order)
+		return &order, nil
+	case <-r.done:
+		return nil, fmt.Errorf("sorry, order app is closed")
+	}
 }

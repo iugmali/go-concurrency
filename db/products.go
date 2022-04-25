@@ -5,8 +5,8 @@ import (
 	"sort"
 	"sync"
 
-	"github.com/applied-concurrency-in-go/models"
-	"github.com/applied-concurrency-in-go/utils"
+	"github.com/iugmali/go-concurrency/models"
+	"github.com/iugmali/go-concurrency/utils"
 )
 
 type ProductDB struct {
