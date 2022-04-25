@@ -3,7 +3,7 @@ package stats
 import (
 	"sync"
 
-	"github.com/applied-concurrency-in-go/models"
+	"github.com/iugmali/go-concurrency/models"
 )
 
 type result struct {

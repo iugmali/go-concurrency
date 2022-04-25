@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/applied-concurrency-in-go/models"
-	"github.com/applied-concurrency-in-go/repo"
+	"github.com/iugmali/go-concurrency/models"
+	"github.com/iugmali/go-concurrency/repo"
 	"github.com/gorilla/mux"
 )
 

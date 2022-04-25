@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/applied-concurrency-in-go/handlers"
+	"github.com/iugmali/go-concurrency/handlers"
 )
 
 func main() {

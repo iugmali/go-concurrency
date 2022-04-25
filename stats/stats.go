@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/applied-concurrency-in-go/models"
+	"github.com/iugmali/go-concurrency/models"
 )
 
 const WorkerCount = 3
@@ -77,9 +77,12 @@ func (s *statsService) processOrder(order models.Order) models.Statistics {
 			Revenue:         *order.Total,
 		}
 	}
-	// TODO: implement order reversal
+	// reversed orders removed from revenue
 	if order.Status == models.OrderStatus_Reversed {
-		panic("order reversal not implemented in stats")
+		return models.Statistics{
+			ReversedOrders: 1,
+			Revenue: -*order.Total,
+		}
 	}
 	// otherwise the order is rejected
 	return models.Statistics{
